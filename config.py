@@ -48,10 +48,17 @@ class Config:
     def validate(cls):
         """Validate that all required environment variables are set"""
         if not cls.GROQ_API_KEY or cls.GROQ_API_KEY == '':
-            raise ValueError(
-                "GROQ_API_KEY is not set. "
-                "Please set it in .env (local) or Streamlit Secrets (cloud)"
+            error_msg = (
+                "❌ GROQ_API_KEY is not set!\n\n"
+                "For Streamlit Cloud:\n"
+                "1. Go to your app settings\n"
+                "2. Click 'Secrets' (if not visible, scroll down)\n"
+                "3. Add: GROQ_API_KEY = \"your_api_key_here\"\n"
+                "4. Save and reboot app\n\n"
+                "For local testing:\n"
+                "Create .env file with: GROQ_API_KEY=your_api_key_here"
             )
+            raise ValueError(error_msg)
         if not cls.GROQ_MODEL_NAME:
             raise ValueError("GROQ_MODEL_NAME is not set in config")
         print(f"✓ Config validated - Using model: {cls.GROQ_MODEL_NAME}")
