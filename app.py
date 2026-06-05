@@ -3,8 +3,8 @@ import os
 import sys
 
 # Ensure project root is in path for imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.retrieval.engine import RAGEngine
+sys.path.insert(0, os.path.dirname(__file__))
+from engine import RAGEngine
 
 # --- Page Configuration ---
 st.set_page_config(
