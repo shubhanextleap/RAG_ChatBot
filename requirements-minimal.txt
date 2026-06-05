@@ -1,0 +1,16 @@
+# Minimal requirements for Streamlit Cloud
+# If you get installation errors, try requirements-minimal.txt first:
+# streamlit run app.py --logger.level=debug
+
+streamlit>=1.0.0
+flask>=2.0.0
+flask-cors>=3.0.0
+python-dotenv>=0.19.0
+langchain>=0.0.200
+langchain-community>=0.0.1
+langchain-groq>=0.1.0
+groq>=0.0.1
+chromadb>=0.3.21
+sentence-transformers>=2.2.0
+requests>=2.28.0
+pydantic>=2.0.0
