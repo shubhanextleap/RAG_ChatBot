@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFC Mutual Fund FAQ Assistant - Test UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+            height: 85vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-section {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        select, input[type="checkbox"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        select {
+            background-color: white;
+            color: #333;
+        }
+
+        .example-queries {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .query-btn {
+            padding: 10px 12px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #555;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .query-btn:hover {
+            background-color: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .clear-btn {
+            padding: 12px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: auto;
+        }
+
+        .clear-btn:hover {
+            background-color: #ff5252;
+        }
+
+        /* Main Chat Area */
+        .main-content {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .assistant .message-content {
+            background: #f0f0f0;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .assistant-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background: #fafafa;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Debug Info */
+        .debug-info {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            border-left: 3px solid #ffa500;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .debug-info code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 200px;
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            text-align: center;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div>
+                <h2 class="sidebar-title">📈 FAQ Assistant</h2>
+                <p style="font-size: 12px; color: #666;">HDFC Mutual Fund</p>
+            </div>
+
+            <div class="sidebar-section">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">Fund Scope</label>
+                <select id="fundSelect">
+                    <option value="">All Funds</option>
+                    <option value="hdfc-growth">HDFC Growth Fund</option>
+                    <option value="hdfc-dividend">HDFC Dividend Fund</option>
+                    <option value="hdfc-balanced">HDFC Balanced Fund</option>
+                </select>
+            </div>
+
+            <div class="sidebar-section">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">Example Queries</label>
+                <div class="example-queries">
+                    <button class="query-btn" onclick="insertQuery('What is the expense ratio?')">What is the expense ratio?</button>
+                    <button class="query-btn" onclick="insertQuery('Who is the fund manager?')">Who is the fund manager?</button>
+                    <button class="query-btn" onclick="insertQuery('What is the exit load?')">What is the exit load?</button>
+                    <button class="query-btn" onclick="insertQuery('What are the investment objectives?')">Investment objectives?</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: #333;">
+                    <input type="checkbox" id="debugMode">
+                    <span>Debug Mode</span>
+                </label>
+            </div>
+
+            <button class="clear-btn">Clear History</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>HDFC Mutual Fund FAQ Assistant</h1>
+                <p>Ask factual questions about HDFC Mutual Fund schemes</p>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="empty-state">
+                    <h2>👋 Welcome!</h2>
+                    <p>Start by selecting a fund or asking a question below</p>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Ask a question about HDFC Mutual Funds..."
+                        onkeypress="handleKeyPress(event)"
+                    >
+                    <button class="send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let messages = [];
+        let isLoading = false;
+
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const debugMode = document.getElementById('debugMode');
+        const fundSelect = document.getElementById('fundSelect');
+        const clearBtn = document.querySelector('.clear-btn');
+
+        // Initialize
+        clearBtn.addEventListener('click', clearHistory);
+
+        function insertQuery(query) {
+            messageInput.value = query;
+            messageInput.focus();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !isLoading) {
+                sendMessage();
+            }
+        }
+
+        function addMessage(role, content, debugInfo = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            let contentHTML = `<div class="message-content">${escapeHtml(content)}`;
+            
+            if (debugInfo && debugMode.checked) {
+                contentHTML += `<div class="debug-info"><strong>Debug:</strong> <code>${escapeHtml(JSON.stringify(debugInfo, null, 2))}</code></div>`;
+            }
+            
+            contentHTML += `</div>`;
+            
+            if (role === 'assistant') {
+                messageDiv.innerHTML = `<div class="assistant-label">Assistant</div>${contentHTML}`;
+            } else {
+                messageDiv.innerHTML = contentHTML;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addLoadingMessage() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            messageDiv.id = 'loadingMessage';
+            messageDiv.innerHTML = `
+                <div>
+                    <div class="assistant-label">Assistant</div>
+                    <div class="message-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <span>Retrieving verified facts...</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeLoadingMessage() {
+            const loading = document.getElementById('loadingMessage');
+            if (loading) loading.remove();
+        }
+
+        async function sendMessage() {
+            const content = messageInput.value.trim();
+            
+            if (!content || isLoading) return;
+            
+            // Remove empty state if present
+            const emptyState = chatMessages.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+            
+            // Add user message
+            addMessage('user', content);
+            messages.push({ role: 'user', content });
+            
+            messageInput.value = '';
+            isLoading = true;
+            
+            addLoadingMessage();
+            
+            try {
+                // Simulate API call - Replace with actual API endpoint
+                const response = await simulateBackendCall(content);
+                
+                removeLoadingMessage();
+                
+                if (response.success) {
+                    addMessage('assistant', response.answer, {
+                        fund: fundSelect.value || 'all',
+                        score: response.score,
+                        sources: response.sources
+                    });
+                    messages.push({ role: 'assistant', content: response.answer });
+                } else {
+                    addMessage('assistant', 'Error: Unable to process your request. Please try again.');
+                }
+            } catch (error) {
+                removeLoadingMessage();
+                addMessage('assistant', `Error: ${error.message}`);
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        async function simulateBackendCall(query) {
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Mock responses - Replace with actual API calls
+            const mockResponses = {
+                'expense': {
+                    success: true,
+                    answer: 'The expense ratio for HDFC Growth Fund is 0.65% per annum. This includes the fund\'s management fee and other operational costs.',
+                    score: 0.95,
+                    sources: ['HDFC-GrowthFund-Factsheet-2024']
+                },
+                'manager': {
+                    success: true,
+                    answer: 'The fund manager for HDFC Growth Fund is Chirag Setalvad with over 15 years of experience in equity market investments. He manages over $5 billion in AUM.',
+                    score: 0.92,
+                    sources: ['HDFC-Team-Information']
+                },
+                'exit': {
+                    success: true,
+                    answer: 'There is no exit load for HDFC Growth Fund if you redeem your units after 1 year from the date of purchase. However, redemptions within 1 year attract 1% exit load.',
+                    score: 0.98,
+                    sources: ['HDFC-SID-Document']
+                },
+                'default': {
+                    success: true,
+                    answer: 'Based on the available documentation, I can provide information about HDFC Mutual Funds. Your question seems to be about: "' + query + '". Please provide more specific details or try one of the example queries for better results.',
+                    score: 0.65,
+                    sources: []
+                }
+            };
+            
+            // Find matching response
+            const lowerQuery = query.toLowerCase();
+            let response = mockResponses.default;
+            
+            if (lowerQuery.includes('expense')) response = mockResponses.expense;
+            else if (lowerQuery.includes('manager') || lowerQuery.includes('fund manager')) response = mockResponses.manager;
+            else if (lowerQuery.includes('exit')) response = mockResponses.exit;
+            
+            return response;
+        }
+
+        function clearHistory() {
+            if (confirm('Clear all chat history?')) {
+                messages = [];
+                chatMessages.innerHTML = `
+                    <div class="empty-state">
+                        <h2>👋 Welcome!</h2>
+                        <p>Start by selecting a fund or asking a question below</p>
+                    </div>
+                `;
+                messageInput.value = '';
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Auto-focus input
+        messageInput.focus();
+    </script>
+</body>
+</html>
