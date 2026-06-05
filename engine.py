@@ -8,8 +8,8 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 
 # Ensure project root is in path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from src.config import Config
+sys.path.insert(0, os.path.dirname(__file__))
+from config import Config
 
 class RAGEngine:
     def __init__(self):
